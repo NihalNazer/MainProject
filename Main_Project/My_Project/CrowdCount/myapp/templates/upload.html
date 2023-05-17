@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Video Upload</title>
+  <style>
+    /* Add some basic styles for the upload container */
+    .upload-container {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      margin-top: 50px;
+    }
+    
+    /* Style the upload button */
+    .upload-btn {
+      padding: 10px 20px;
+      background-color: #4CAF50;
+      color: #fff;
+      border: none;
+      cursor: pointer;
+      font-size: 16px;
+    }
+    
+    .upload-btn:hover {
+      background-color: #45a049;
+    }
+    
+    /* Style the file input */
+    #file-input {
+      display: none; /* Hide the file input initially */
+    }
+
+    /* Add additional styles for visual enhancement */
+    body {
+      background-color: #f2f2f2;
+      font-family: Arial, sans-serif;
+      margin: 0;
+      padding: 0;
+    }
+
+    h2 {
+      color: #333;
+      margin-top: 0;
+    }
+
+    .upload-container {
+      border: 2px dashed #ddd;
+      border-radius: 8px;
+      padding: 20px;
+      background-color: #fff;
+      box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    }
+  </style>
+</head>
+<body>
+  <div class="upload-container">
+    <h2>Upload a Video</h2>
+    <label for="file-input" class="upload-btn">Select File</label>
+    <input id="file-input" type="file" accept="video/*" />
+  </div>
+
+  <script>
+    // Get the file input element
+    const fileInput = document.getElementById('file-input');
+
+    // Add an event listener to handle file selection
+    fileInput.addEventListener('change', handleFileUpload);
+
+    // Function to handle the file upload
+    function handleFileUpload(event) {
+      const file = event.target.files[0];
+
+      // You can perform further processing with the selected file here
+      console.log('Selected file:', file);
+    }
+  </script>
+</body>
+</html>
