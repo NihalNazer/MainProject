@@ -1,78 +1,190 @@
-<!DOCTYPE html>
+{% load static %} 
 <html>
 <head>
-  <title>Video Upload</title>
-  <style>
-    /* Add some basic styles for the upload container */
-    .upload-container {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      margin-top: 50px;
-    }
-    
-    /* Style the upload button */
-    .upload-btn {
-      padding: 10px 20px;
-      background-color: #4CAF50;
-      color: #fff;
-      border: none;
-      cursor: pointer;
-      font-size: 16px;
-    }
-    
-    .upload-btn:hover {
-      background-color: #45a049;
-    }
-    
-    /* Style the file input */
-    #file-input {
-      display: none; /* Hide the file input initially */
-    }
+    <title>CROWD COUNTING</title>
+    <style>
+        body {   
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-image: url('{% static "images/background.jpg" %}');
+            background-repeat: no-repeat;
+            background-position: center center;
+            background-attachment: fixed;
+            background-size: cover;
+        }
+        
+        .project-name {
+            text-align: center;
+            color: #333;
+            font-size: 30px;
+            font-weight: bold;
+            margin-top: -70px;
+        }
 
-    /* Add additional styles for visual enhancement */
-    body {
-      background-color: #f2f2f2;
-      font-family: Arial, sans-serif;
-      margin: 0;
-      padding: 0;
-    }
+        .upload-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 90vh;
+            
+        }
 
-    h2 {
-      color: #333;
-      margin-top: 0;
-    }
+        .upload-form {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 20px;
+            border: 2px dashed #333;
+            border-radius: 10px;
+        }
 
-    .upload-container {
-      border: 2px dashed #ddd;
-      border-radius: 8px;
-      padding: 20px;
-      background-color: #fff;
-      box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
-    }
-  </style>
+        h1 {
+            text-align: center;
+            color: #333;
+        }
+
+        .upload-btn {
+            padding: 10px 20px;
+            background-color: #4CAF50;
+            color: #fff;
+            border: none;
+            cursor: pointer;
+            font-size: 18px;
+            transition: background-color 0.3s ease;
+        }
+
+        .upload-btn:hover {
+            background-color: #45a049;
+        }
+
+        #file-input {
+            display: none;
+        }
+
+        .image-preview {
+            text-align: center;
+            margin-top: 30px;
+        }
+
+        .image-preview-container {
+            text-align: center;
+            margin-top: 30px;
+        }
+
+        .image-preview img {
+            max-width: 400px;
+            max-height: 400px;
+            margin-top: 20px;
+            border-radius: 5px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .get-crowd-count-container {
+            display: flex;
+            justify-content: center;
+            margin-top: 20px;
+        }
+
+        .get-crowd-count-btn {
+            padding: 10px 20px;
+            background-color: #333;
+            color: #fff;
+            border: none;
+            cursor: pointer;
+            font-size: 18px;
+            transition: background-color 0.3s ease;
+        }
+
+        .get-crowd-count-btn:hover {
+            background-color: #555;
+        }
+
+        .crowd-count-result {
+            text-align: center;
+            margin-top: 20px;
+        }
+
+        .crowd-count-result h2 {
+            color: #333;
+            font-size: 24px;
+        }
+    </style>
 </head>
 <body>
-  <div class="upload-container">
-    <h2>Upload a Video</h2>
-    <label for="file-input" class="upload-btn">Select File</label>
-    <input id="file-input" type="file" accept="video/*" />
-  </div>
+    <div class="upload-container">
+        <!-- HTML content -->
+        <h1 class="project-name">HYBRID ATTENTION MECHANISM-BASED CROWD COUNTING WITH CNN</h1>
+        <h1>Count Crowd</h1>
+        <div class="upload-form">
+            <form action="{% url 'upload' %}" method="post" enctype="multipart/form-data" id="upload-form">
+                {% csrf_token %}
+                <label for="file-input" class="upload-btn">Select Video</label>
+                <input id="file-input" type="file" name="video_file" />
+                <button type="submit" class="upload-btn">Video Upload</button>
+                <button type="button" class="upload-btn" id="start-record-btn" onclick="startRecording()">Start Recording</button>
+                <button type="button" class="upload-btn" id="stop-record-btn" onclick="stopRecording()">Stop Recording</button>
+                <div id="video-container"></div>
+                <div class="get-crowd-count-container">
+                    <button type="button" class="get-crowd-count-btn" id="get-crowd-count-btn" onclick="getCrowdCount()">Get Crowd Count</button>
+                </div>
+            </form>
+        </div>
+    </div>
 
-  <script>
-    // Get the file input element
-    const fileInput = document.getElementById('file-input');
+    <div class="crowd-count-result" id="crowd-count-container"></div>
 
-    // Add an event listener to handle file selection
-    fileInput.addEventListener('change', handleFileUpload);
+    <script>
+        let mediaStream;
+        let mediaRecorder;
+        let recordedChunks = [];
 
-    // Function to handle the file upload
-    function handleFileUpload(event) {
-      const file = event.target.files[0];
+        function startRecording() {
+            const constraints = { video: true };
 
-      // You can perform further processing with the selected file here
-      console.log('Selected file:', file);
-    }
-  </script>
+            navigator.mediaDevices.getUserMedia(constraints)
+                .then(function (stream) {
+                    mediaStream = stream;
+
+                    const videoElement = document.createElement('video');
+                    videoElement.srcObject = mediaStream;
+                    videoElement.autoplay = true;
+
+                    const videoContainer = document.getElementById('video-container');
+                    videoContainer.innerHTML = '';
+                    videoContainer.appendChild(videoElement);
+
+                    mediaRecorder = new MediaRecorder(mediaStream);
+                    mediaRecorder.ondataavailable = handleDataAvailable;
+
+                    recordedChunks = [];
+                    mediaRecorder.start();
+                })
+                .catch(function (error) {
+                    console.error('Error accessing video stream:', error);
+                });
+        }
+
+        function stopRecording() {
+            if (mediaRecorder && mediaStream) {
+                mediaRecorder.stop();
+                mediaStream.getTracks().forEach(track => track.stop());
+                mediaStream = null;
+            }
+        }
+
+        function handleDataAvailable(event) {
+            if (event.data.size > 0) {
+                recordedChunks.push(event.data);
+            }
+        }
+
+        function getCrowdCount() {
+            const crowdCountContainer = document.getElementById('crowd-count-container');
+            crowdCountContainer.innerHTML = '<h2>Crowd Count: 50</h2>';
+        }
+    </script>
+    </script>
 </body>
 </html>
