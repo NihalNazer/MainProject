@@ -1,0 +1,128 @@
+{% load static %} 
+<html>
+<head>
+    <title>Result</title>
+    <style>
+        body {   
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-image: url('{% static "images/background.jpg" %}');
+            background-repeat: no-repeat;
+            background-position: center center;
+            background-attachment: fixed;
+            background-size: cover;
+        }
+        
+        .project-name {
+            text-align: center;
+            color: #333;
+            font-size: 30px;
+            font-weight: bold;
+            margin-top: -70px;
+        }
+
+        .upload-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 90vh;
+            
+        }
+
+        .upload-form {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 20px;
+            border: 2px dashed #333;
+            border-radius: 10px;
+        }
+
+        h1 {
+            text-align: center;
+            color: #333;
+        }
+
+        .clear-btn {
+            padding: 8px 16px;
+            background-color: #af4c4c;
+            color: #fff;
+            border: none;
+            cursor: pointer;
+            font-size: 16px;
+            transition: background-color 0.3s ease;
+            text-decoration: none;
+            align-items: center;
+        }
+
+        .clear-btn:hover {
+            background-color: #3e2020;
+        }
+
+        #file-input {
+            display: none;
+        }
+
+        .image-preview {
+            text-align: center;
+            margin-top: 30px;
+        }
+
+        .image-preview-container {
+            text-align: center;
+            margin-top: 30px;
+        }
+
+        .image-preview img {
+            max-width: 400px;
+            max-height: 400px;
+            margin-top: 20px;
+            border-radius: 5px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .get-crowd-count-container {
+            display: flex;
+            justify-content: center;
+            margin-top: 20px;
+        }
+
+        .get-crowd-count-btn {
+            padding: 10px 20px;
+            background-color: #333;
+            color: #fff;
+            border: none;
+            cursor: pointer;
+            font-size: 18px;
+            transition: background-color 0.3s ease;
+        }
+
+        .get-crowd-count-btn:hover {
+            background-color: #555;
+        }
+
+        .crowd-count-result {
+            text-align: center;
+            margin-top: 20px;
+        }
+
+        .crowd-count-result h2 {
+            color: #333;
+            font-size: 24px;
+        }
+    </style>
+</head>
+<body>
+    <div class="upload-container">
+        <!-- HTML content -->
+        <h1 class="project-name">Result</h1>
+        <div class="upload-form">
+                <h2>Crowd Count: {{ headcount }}</h2>
+                <a  class="clear-btn" href="{% url 'upload' %}">clear</a>
+        </div> 
+        
+    </div>
+</body>
+</html>

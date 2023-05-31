@@ -21,7 +21,7 @@ from django.conf import settings
 from django.conf.urls.static import static
 
 urlpatterns = [
-    path('', views.upload, name='upload'),  # Add this line
+    path('', views.upload_video, name='upload'),  # Add this line
     path('admin/', admin.site.urls),
     path('myapp/', include('myapp.urls')),
 ] + static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)

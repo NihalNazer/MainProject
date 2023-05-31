@@ -58,6 +58,19 @@
         .upload-btn:hover {
             background-color: #45a049;
         }
+        .clear-btn {
+            padding: 5px 10px;
+            background-color: #af4c4c;
+            color: #fff;
+            border: none;
+            cursor: pointer;
+            font-size: 10px;
+            transition: background-color 0.3s ease;
+        }
+
+        .clear-btn:hover {
+            background-color: #a04545;
+        }
 
         #file-input {
             display: none;
@@ -110,6 +123,7 @@
             color: #333;
             font-size: 24px;
         }
+
     </style>
 </head>
 <body>
@@ -118,73 +132,37 @@
         <h1 class="project-name">HYBRID ATTENTION MECHANISM-BASED CROWD COUNTING WITH CNN</h1>
         <h1>Count Crowd</h1>
         <div class="upload-form">
-            <form action="{% url 'upload' %}" method="post" enctype="multipart/form-data" id="upload-form">
+            <form action="{% url 'upload' %}" method="post" enctype="multipart/form-data">
                 {% csrf_token %}
                 <label for="file-input" class="upload-btn">Select Video</label>
-                <input id="file-input" type="file" name="video_file" />
+                <input id="file-input" type="file" name="video_file" onchange="showFileName(this)" />
                 <button type="submit" class="upload-btn">Video Upload</button>
-                <button type="button" class="upload-btn" id="start-record-btn" onclick="startRecording()">Start Recording</button>
-                <button type="button" class="upload-btn" id="stop-record-btn" onclick="stopRecording()">Stop Recording</button>
-                <div id="video-container"></div>
-                <div class="get-crowd-count-container">
-                    <button type="button" class="get-crowd-count-btn" id="get-crowd-count-btn" onclick="getCrowdCount()">Get Crowd Count</button>
-                </div>
             </form>
+            <div id="file-info">
+                <p id="file-name" style="display: none;"></p> <!-- Element to display the selected file name -->
+                <button id="clear-btn" class="clear-btn" style="display: none;" onclick="clearFile()">Clear</button>
+            </div>
         </div>
     </div>
-
-    <div class="crowd-count-result" id="crowd-count-container"></div>
-
+    
     <script>
-        let mediaStream;
-        let mediaRecorder;
-        let recordedChunks = [];
-
-        function startRecording() {
-            const constraints = { video: true };
-
-            navigator.mediaDevices.getUserMedia(constraints)
-                .then(function (stream) {
-                    mediaStream = stream;
-
-                    const videoElement = document.createElement('video');
-                    videoElement.srcObject = mediaStream;
-                    videoElement.autoplay = true;
-
-                    const videoContainer = document.getElementById('video-container');
-                    videoContainer.innerHTML = '';
-                    videoContainer.appendChild(videoElement);
-
-                    mediaRecorder = new MediaRecorder(mediaStream);
-                    mediaRecorder.ondataavailable = handleDataAvailable;
-
-                    recordedChunks = [];
-                    mediaRecorder.start();
-                })
-                .catch(function (error) {
-                    console.error('Error accessing video stream:', error);
-                });
+        function showFileName(input) {
+            var fileName = input.files[0] ? input.files[0].name : ''; // Get the name of the selected file or empty string if no file selected
+            var fileElement = document.getElementById('file-name');
+            fileElement.innerText = 'Selected File: ' + fileName; // Update the text below the button
+            var clearButton = document.getElementById('clear-btn');
+            clearButton.style.display = fileName ? 'block' : 'none'; // Show or hide the clear button based on whether a file is selected
+            fileElement.style.display = fileName ? 'block' : 'none'; // Show or hide the file name based on whether a file is selected
         }
-
-        function stopRecording() {
-            if (mediaRecorder && mediaStream) {
-                mediaRecorder.stop();
-                mediaStream.getTracks().forEach(track => track.stop());
-                mediaStream = null;
-            }
-        }
-
-        function handleDataAvailable(event) {
-            if (event.data.size > 0) {
-                recordedChunks.push(event.data);
-            }
-        }
-
-        function getCrowdCount() {
-            const crowdCountContainer = document.getElementById('crowd-count-container');
-            crowdCountContainer.innerHTML = '<h2>Crowd Count: 50</h2>';
+    
+        function clearFile() {
+            var fileInput = document.getElementById('file-input');
+            fileInput.value = ''; // Clear the selected file
+            showFileName(fileInput); // Update the display
         }
     </script>
-    </script>
+    
+    
+    
 </body>
 </html>

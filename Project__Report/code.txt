@@ -1,0 +1,201 @@
+import cv2
+import numpy as np
+import pandas as pd
+import matplotlib.pyplot as plt
+from sklearn.model_selection import train_test_split
+from keras.applications.vgg16 import VGG16, preprocess_input
+import tensorflow as tf
+from tensorflow.keras.layers import Input, Conv2D, BatchNormalization, Activation, Multiply, GlobalAveragePooling2D, Reshape, Dense, Add
+from tensorflow.keras.models import Model
+
+# Set the fixed size of the output video
+OUTPUT_SIZE = (640, 480)
+
+# Open the input video file
+cap = cv2.VideoCapture('C:/Users/nihal/Desktop/Academics/Main/MainProject/Main_Project/Project/videos/1.mp4')
+
+# Create a VideoWriter object to write the output video
+fourcc = cv2.VideoWriter_fourcc(*'mp4v')
+out = cv2.VideoWriter('C:/Users/nihal/Desktop/Academics/Main/MainProject/Main_Project/Project/videos/output_video1.mp4', fourcc, 25.0, OUTPUT_SIZE)
+
+# Loop through each frame of the input video
+while cap.isOpened():
+    ret, frame = cap.read()
+    
+    if ret:
+        # Resize the frame to the fixed output size
+        resized_frame = cv2.resize(frame, OUTPUT_SIZE)
+        
+        # Normalize the pixel values to between 0 and 1
+        normalized_frame = resized_frame.astype(np.float32) / 255.0
+        
+        # Write the normalized frame to the output video
+        out.write(normalized_frame)
+        
+        cv2.imshow('C:/Users/nihal/Desktop/Academics/Main/MainProject/Main_Project/Project/frame1/Resized and Normalized Frame', normalized_frame)
+        if cv2.waitKey(1) & 0xFF == ord('q'):
+            break
+    else:
+        break
+
+# Release the resources
+cap.release()
+out.release()
+cv2.destroyAllWindows()
+
+# Load the pre-trained VGG16 model
+model = VGG16(weights='imagenet', include_top=False)
+
+# Set the fixed size of the input frames
+INPUT_SIZE = (224, 224)
+
+# Open the input video file
+cap = cv2.VideoCapture('C:/Users/nihal/Desktop/Academics/Main/MainProject/Main_Project/Project/videos/output_video1.mp4')
+
+# Create an empty list to store the extracted features
+features = []
+
+# Loop through each frame of the input video
+ret, frame = cap.read()
+if ret:
+        # Resize the frame to the fixed input size
+    resized_frame = cv2.resize(frame, INPUT_SIZE)
+        
+        # Preprocess the input frame for the VGG16 model
+    preprocessed_frame = preprocess_input(np.expand_dims(resized_frame, axis=0))
+        
+        # Extract the features from the preprocessed frame using the VGG16 model
+    features.append(model.predict(preprocessed_frame)[0])
+        
+
+# Convert the extracted features to a NumPy array
+features = np.array(features)
+
+print(preprocessed_frame.shape)
+
+print(features.shape)
+
+print(features)
+
+np.save('C:/Users/nihal/Desktop/Academics/Main/MainProject/Main_Project/Project/features.npy',features)
+videoclass="test crowd"
+feature_array=[]
+feature_array.append([features,videoclass])
+# print(feature_array)
+# fea=np.mean(feature_array.T,axis=0)
+# print(feature_array)
+ee=pd.DataFrame(feature_array,columns=['f','c'])
+print(ee)
+ee.to_csv('C:/Users/nihal/Desktop/Academics/Main/MainProject/Main_Project/Project/my_data.csv', index=False)
+
+
+# Load the features from the file
+features = np.load('C:/Users/nihal/Desktop/Academics/Main/MainProject/Main_Project/Project/features.npy')
+
+# Print the shape of the features array
+print('Features shape:', features.shape)
+
+# Display the first video's first frame
+plt.imshow(features[0][0])
+plt.show()
+
+# Load the dataset
+dataset = np.array(features)
+
+# Split the dataset into training and validation sets
+train_data, val_data = train_test_split(dataset, test_size=0.2, random_state=42)
+
+# Extract the shape of the feature map
+feature_shape = train_data.shape[1:-1]
+
+print(f"Feature map shape: {feature_shape}")
+
+# Define the input shape
+input_shape = (None, None, 3) # replace with the actual shape of your feature map
+
+# Define the attention mechanism
+def attention_block(x):
+    # Channel attention
+    c_avg = GlobalAveragePooling2D()(x)
+    c_dense_1 = Dense(units=int(x.shape[-1]), activation='relu')(c_avg)
+    c_dense_2 = Dense(units=int(x.shape[-1]), activation='sigmoid')(c_dense_1)
+    c_out = Multiply()([x, c_dense_2])
+    
+    # Spatial attention
+    s_conv = Conv2D(filters=1, kernel_size=3, padding='same', activation='sigmoid')(x)
+    s_out = Multiply()([x, s_conv])
+    
+    # Hybrid attention
+    out = Add()([c_out, s_out])
+    
+    return out
+
+# Define the model architecture
+inputs = Input(shape=input_shape)
+x = Conv2D(filters=512, kernel_size=3, padding='same')(inputs)
+x = BatchNormalization()(x)
+x = Activation('relu')(x)
+x = attention_block(x)
+x = Conv2D(filters=1, kernel_size=1)(x)
+x = Activation('relu')(x)
+x = Reshape((-1,))(x)
+model = Model(inputs=inputs, outputs=x)
+
+# Compile the model
+model.compile(optimizer='adam', loss='mse', metrics=['accuracy'])
+
+# Specify the path where you want to save the model
+path = 'C:/Users/nihal/Desktop/Academics/Main/MainProject/Main_Project/Project/model.h5'
+
+# Save the model to the specified path in HDF5 format
+model.save(path, save_format='h5')
+
+# Define the paths to the trained model and the video file
+model_path = 'C:/Users/nihal/Desktop/Academics/Main/MainProject/Main_Project/Project/model.h5'
+video_path = 'C:/Users/nihal/Desktop/Academics/Main/MainProject/Main_Project/Project/videos/1.mp4'
+
+# Load the trained model
+model = tf.keras.models.load_model(model_path)
+
+# Define the input shape of the model
+input_shape =   (16 , 224, 224, 6)  # replace with the actual shape of your feature map
+
+# Open the video file
+cap = cv2.VideoCapture(video_path)
+
+# Initialize the headcount
+headcount = 0
+
+# # Loop over the frames in the video
+# while cap.isOpened():
+    # Read the next frame
+ret, frame = cap.read()
+
+    # # If the frame is not valid, break the loop
+    # if not ret:
+    #     break
+        
+    # Get the dimensions of the input frame
+height, width, channels = frame.shape
+    
+    # # Check if the dimensions are valid
+    # if height <= 0 or width <= 0:
+    #     continue
+    
+    #Resize the frame to the input shape of the model
+resized = cv2.resize(frame, (input_shape[1], input_shape[0]), interpolation=cv2.INTER_LINEAR)
+    
+    # Normalize the pixel values
+normalized = frame / 255.0
+
+    # Add a batch dimension to the input tensor
+tensor = np.expand_dims(normalized, axis=0)
+    
+    # Make a prediction using the model
+prediction = model.predict(tensor)[0]
+    
+    # Add the predicted headcount to the total headcount
+headcount += prediction
+    
+# Release the video file and print the total headcount
+print('Total headcount:', int(sum(headcount)))

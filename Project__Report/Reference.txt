@@ -1,0 +1,15 @@
+Chaudhari, Mayur & Ghotkar, Archana. (2018).
+A Study on Crowd Detection and Density Analysis for Safety Control. 
+International Journal of Computer Sciences and Engineering. 6. 424-428. 10.26438/ijcse/v6i4.424428. 
+
+
+
+Jiang, Xiaoheng & Zhang, Li & Xu, Mingliang & Zhang, Tianzhu & Lv, Pei & Zhou, Bing & Yang, Xin & Pang, Yanwei. (2020). 
+Attention Scaling for Crowd Counting. 
+4705-4714. 10.1109/CVPR42600.2020.00476. 
+
+
+
+L. Yan, M. Sheng, C. Wang, M. Wei and X. Zhou, 
+"Facial Expression Recognition Based on Hybrid Attention Mechanism," 
+2021 16th International Conference on Computer Science & Education (ICCSE), Lancaster, United Kingdom, 2021, pp. 612-616, doi: 10.1109/ICCSE51940.2021.9569458.
